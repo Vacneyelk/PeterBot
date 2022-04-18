@@ -1,11 +1,17 @@
 import os
 
+import asyncpg
 import discord
 from discord.ext import commands
 
 initial_cogs = ("cogs.utilities",)
 
 bot_owner = os.environ["OWNER_ID"]
+db_user = os.environ["POSTGRES_USER"]
+db_password = os.environ["POSTGRES_PASSWORD"]
+db_host = os.environ["POSTGRES_HOST"]
+db_port = os.environ["POSTGRES_PORT"]
+db_database = os.environ["POSTGRES_DB"]
 
 
 def _prefix_callable(bot, msg):
@@ -22,9 +28,21 @@ class PeterBot(commands.Bot):
         )
 
     async def setup_hook(self):
+        """
+        Setup hook is used to initialize the bot before handling any events
+
+        Functional override of discord.Client.setup_hook
+        """
         for cog in initial_cogs:
             print(f"loading cog {cog}...")
             await self.load_extension(cog)
+        self.db_pool = await asyncpg.create_pool(
+            user=db_user,
+            password=db_password,
+            host=db_host,
+            port=db_port,
+            database=db_database,
+        )
 
     async def on_ready(self):
         print(f"{self.user} online (ID: {self.user.id}")

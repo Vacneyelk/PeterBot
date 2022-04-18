@@ -8,3 +8,5 @@ services:
     image: postgres:14
     env_file:
       - .env
+    volumes:
+      - ./postgres/sql/create_tables.sql:/docker-entrypoint-initdb.d/db.sql
