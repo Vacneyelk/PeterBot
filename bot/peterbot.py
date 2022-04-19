@@ -2,6 +2,7 @@ import os
 
 import asyncpg
 import discord
+from database import loaders, writers
 from discord.ext import commands
 
 initial_cogs = ("cogs.utilities",)
@@ -43,6 +44,12 @@ class PeterBot(commands.Bot):
             port=db_port,
             database=db_database,
         )
+        # Load caches
+        self.peter_guilds = await loaders.request_guilds(self)
+        # Add new guilds
+        async for guild in self.fetch_guilds(limit=None):
+            if guild.id not in self.peter_guilds:
+                await writers.insert_guild(self, guild.id)
 
     async def on_ready(self):
         print(f"{self.user} online (ID: {self.user.id}")
@@ -51,5 +58,6 @@ class PeterBot(commands.Bot):
         activity = discord.Game("Watching over the anthill")
         await self.change_presence(status=discord.Status.online, activity=activity)
 
-
-changed = None
+    async def on_guild_join(self, guild):
+        if guild.id not in self.peter_guilds:
+            await writers.insert_guild(self, guild.id)

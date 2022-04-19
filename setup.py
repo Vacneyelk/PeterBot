@@ -35,6 +35,7 @@ def get_dependency_links():
 packages = [
     "bot",
     "bot.cogs",
+    "bot.database",
 ]
 
 setup(

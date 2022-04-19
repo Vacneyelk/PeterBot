@@ -1,7 +1,7 @@
 import asyncio
 import os
 
-from bot import PeterBot
+from peterbot import PeterBot
 
 try:
     import uvloop

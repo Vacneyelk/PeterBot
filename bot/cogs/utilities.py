@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-
-from bot import PeterBot
+from peterbot import PeterBot
 
 
 class Utilities(commands.Cog):
