@@ -24,8 +24,12 @@ def _prefix_callable(bot, msg):
 class PeterBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents().all()
+        application_id = int(os.environ["APPLICATION_ID"])
         super().__init__(
-            command_prefix=_prefix_callable, intents=intents, owner_id=bot_owner
+            command_prefix=_prefix_callable,
+            intents=intents,
+            owner_id=bot_owner,
+            application_id=application_id,
         )
 
     async def setup_hook(self):
@@ -34,9 +38,11 @@ class PeterBot(commands.Bot):
 
         Functional override of discord.Client.setup_hook
         """
+        # Load cogs
         for cog in initial_cogs:
             print(f"loading cog {cog}...")
             await self.load_extension(cog)
+        # create database connection pools
         self.db_pool = await asyncpg.create_pool(
             user=db_user,
             password=db_password,
@@ -46,13 +52,22 @@ class PeterBot(commands.Bot):
         )
         # Load caches
         self.peter_guilds = await loaders.request_guilds(self)
+        self.peter_users = await loaders.request_users(self)
+        self.peter_channels = await loaders.request_channels(self)
+        self.peter_voice_channels = await loaders.request_voice_channels(self)
+        self.peter_catalogue_aliases = await loaders.request_catalogue_aliases(self)
         # Add new guilds
         async for guild in self.fetch_guilds(limit=None):
             if guild.id not in self.peter_guilds:
                 await writers.insert_guild(self, guild.id)
 
+        for guild_id in self.peter_guilds.keys():
+            self.tree.copy_global_to(guild=discord.Object(id=guild_id))
+            await self.tree.sync(guild=discord.Object(id=guild_id))
+        await self.tree.sync()
+
     async def on_ready(self):
-        print(f"{self.user} online (ID: {self.user.id}")
+        print(f"{self.user} online (ID: {self.user.id})")
         print("-" * 88)
 
         activity = discord.Game("Watching over the anthill")
