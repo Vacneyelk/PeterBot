@@ -1,0 +1,9 @@
+# Development
+black
+isort
+flake8
+pre-commit
+# Bot
+git+https://github.com/Rapptz/discord.py.git@6265723a352ee77f418ef3004012cc5693ba390f
+uvloop; sys_platform == 'linux'
+asyncpg
