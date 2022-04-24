@@ -26,4 +26,6 @@ Note: make sure you have assigned yourself the `docker` group.
 
 ## Contributing
 
-To start contributing check out the [contributing doc](CONTRIBUTING.md)
+To start contributing check out the [contributing doc](CONTRIBUTING.md).
+
+You might also want to review [Understanding the bot](docs/understanding_the_bot.md)

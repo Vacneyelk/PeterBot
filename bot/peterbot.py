@@ -51,6 +51,7 @@ class PeterBot(commands.Bot):
             database=db_database,
         )
         # Load caches
+        # Certain tables are cached to avoid making calls to the database
         self.peter_guilds = await loaders.request_guilds(self)
         self.peter_users = await loaders.request_users(self)
         self.peter_channels = await loaders.request_channels(self)
