@@ -5,7 +5,7 @@ import discord
 from database import loaders, writers
 from discord.ext import commands
 
-initial_cogs = ("cogs.utilities",)
+initial_cogs = ("cogs.utilities", "cogs.schedule")
 
 bot_owner = os.environ["OWNER_ID"]
 db_user = os.environ["POSTGRES_USER"]
