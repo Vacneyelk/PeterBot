@@ -12,6 +12,7 @@ async def insert_guild(
 ) -> None:
     """
     Adds a new guild to the database and updates bot.peter_guilds
+    TODO: should add a ON CONFLICT DO NOTHING clause
 
     Parameters
     ----------
@@ -37,6 +38,7 @@ async def insert_guild(
 async def insert_user(bot: "PeterBot", guild_id: int, user_id: int) -> None:
     """
     Adds a new user to a guild and updates bot.peter_users
+    TODO: should add a ON CONFLICT DO NOTHING clause
 
     Parameters
     ----------
@@ -92,6 +94,7 @@ async def insert_catalogue_alias(
 async def insert_channel(bot: "PeterBot", guild_id: int, channel_id: int) -> None:
     """
     Adds a new channel and updates bot.peter_channels
+    TODO: should add a ON CONFLICT DO NOTHING clause
 
     Parameters
     ----------
@@ -165,7 +168,8 @@ async def insert_user_message(
     message_date: datetime,
 ) -> None:
     """
-    Adds a new user message to the database
+    Adds a new user message to the database. If the guild, user, or channel of the
+    message doesn't exist in the database, it's added
 
     Parameters
     ----------
@@ -189,6 +193,14 @@ async def insert_user_message(
     -------
     None
     """
+    message_date = message_date.replace(tzinfo=None)
+    # check if the foreign keys exist in the DB and insert
+    if guild_id not in bot.peter_guilds:
+        await insert_guild(bot, guild_id)
+    if channel_id not in bot.peter_channels[guild_id]:
+        await insert_channel(bot, guild_id, channel_id)
+    if user_id not in bot.peter_users[guild_id]:
+        await insert_user(bot, guild_id, user_id)
     async with bot.db_pool.acquire() as conn:
         conn: Connection
         async with conn.transaction():
