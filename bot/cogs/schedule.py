@@ -64,11 +64,18 @@ class Schedule(commands.Cog):
         #   becomes
         #       term = "2022 Spring"
         #       flags = {"ge":"GE-4", "department":"CHEM"}
+        message = await ctx.send("Searching")
         term = " ".join(args).split("--")[0]
         flags = shlex.split(" ".join(args[2:]))
         flags = dict(zip([f.replace("--", "") for f in flags[::2]], flags[1::2]))
 
-        # Check flags for potential errors, like missing mandatory flags
+        # Check command for potential errors, like missing mandatory flags
+        if not any(
+            [st in term.lower() for st in ["spring", "summer", "fall", "winter"]]
+        ):
+            await ctx.send("Missing term. See `$help soc` on how to structure command.")
+            return
+
         if not any(
             f in flags.keys()
             for f in [
@@ -174,10 +181,10 @@ class Schedule(commands.Cog):
 
         # Multiple Page result display
         current_page = 0
-        await ctx.send(
+        await message.edit(
             content="",
             embed=embeds[current_page % len(embeds)],
-            view=PageTurnView(ctx, embeds),
+            view=PageTurnView(ctx, embeds, message),
         )
         return
 
