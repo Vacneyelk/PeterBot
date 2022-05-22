@@ -6,15 +6,12 @@ from discord.ext import commands
 
 class PageTurnView(discord.ui.View):
     """discord.ui.View subclass for page-turn functionality between embeds
-
     Parameters
     ----------
     ctx : discord.ext.commands.Context
         Discord's command context
-
     embed_list: List[discord.Embed]
         List of embeds to page turn
-
     message: discord.Message
         The message containing the buttons.
     timeout: float
@@ -41,13 +38,20 @@ class PageTurnView(discord.ui.View):
     # Remove buttons on timeout
     async def on_timeout(self) -> None:
         super().clear_items()
-        await self.message.edit(view=self)
+        try:
+            await self.message.edit(view=self)
+        except Exception:
+            pass
+
         super().stop()
 
     # Delete result
     @discord.ui.button(emoji="🗑️", style=discord.ButtonStyle.red)
     async def delete_callback(self, interaction: discord.Interaction, _):
         await interaction.message.delete()
+        # Post delete cleanup
+        super().clear_items()
+        super().stop()
 
     # Prev page
     @discord.ui.button(emoji="◀️", style=discord.ButtonStyle.gray)
